@@ -1,0 +1,63 @@
+.textCont {
+  display: flex;
+  height: 62px;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+
+  h1,
+  h2 {
+    margin: 0;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+}
+
+.selectedCont {
+  display: flex;
+  gap: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 124px;
+
+  p {
+    margin: 0;
+    margin-top: 12px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+
+    &.subtitle {
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-top: 0;
+    }
+  }
+}
+
+.proposeCont {
+  display: flex;
+  gap: 48px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin-bottom: 64px;
+  margin-top: 16px;
+
+  .proposeButtons {
+    height: 42px;
+    display: flex;
+    gap: 8px;
+  }
+}

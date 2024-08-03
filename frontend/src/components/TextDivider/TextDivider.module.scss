@@ -1,0 +1,12 @@
+.root {
+  display: flex;
+  width: 100%;
+  gap: 16px;
+  align-items: center;
+}
+
+.divider {
+  flex: 1;
+  height: 2px;
+  background-color: var(--color-contrast);
+}

@@ -1,0 +1,90 @@
+$size: 96px;
+$border: 4px;
+$innerMargin: 4px;
+
+.missions {
+  display: flex;
+  gap: 16px;
+  background-color: var(--color-contrast-alt-2);
+  padding: 16px;
+  padding-bottom: calc(16px + 1rem + 8px);
+  border-radius: 32px;
+  width: max-content;
+
+  * {
+    user-select: none;
+  }
+}
+
+.mission {
+  width: $size - $border * 2;
+  height: $size - $border * 2;
+  border-radius: 50%;
+  border: $border solid var(--color-contrast);
+  position: relative;
+}
+
+.peopleInMission {
+  position: absolute;
+  left: 50%;
+  bottom: calc(-1rem - 16px);
+  margin: 0;
+  transform: translateX(-50%);
+}
+
+@keyframes drop-in {
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+.next {
+  background-color: var(--color-text);
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.brick {
+  position: absolute;
+  width: $size - $border * 2 - $innerMargin * 2;
+  height: $size - $border * 2 - $innerMargin * 2;
+  border-radius: 50%;
+  top: $innerMargin;
+  left: $innerMargin;
+  animation: drop-in 0.5s;
+  animation-duration: 300ms;
+
+  cursor: pointer;
+  transition: transform 50ms ease-in-out;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  p {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--color-text-contrast);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.fulfill {
+  background-color: var(--color-fulfill);
+}
+
+.hack {
+  background-color: var(--color-hack);
+}

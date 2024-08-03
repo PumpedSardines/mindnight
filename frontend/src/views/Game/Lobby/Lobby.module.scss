@@ -1,0 +1,99 @@
+$grid-size: 200px;
+
+.root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  padding: 64px;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.logoBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.characterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, $grid-size);
+  gap: 16px;
+}
+
+.characterBox {
+  width: $grid-size;
+  height: $grid-size;
+  box-sizing: border-box;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+  padding-top: 20px;
+  padding-bottom: 0;
+  gap: 12px;
+  align-items: center;
+  flex-direction: column;
+  background-color: var(--color-contrast);
+  position: relative;
+
+  .you {
+    top: 12px;
+    left: 12px;
+    position: absolute;
+  }
+
+  .name {
+    width: 100%;
+    font-weight: 600;
+    overflow: hidden;
+    text-align: center;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .diceButton {
+    all: unset;
+    cursor: pointer;
+    top: 10px;
+    right: 16px;
+    position: absolute;
+
+    img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.copyCodeButton {
+  all: unset;
+  cursor: pointer;
+
+  box-sizing: border-box;
+  display: block;
+  padding: 8px 12px;
+  border-radius: 8px;
+
+  &:hover {
+    background-color: var(--color-contrast);
+  }
+
+  &:active {
+    background-color: var(--color-contrast-alt-2);
+  }
+}
+
+.characterBoxNon {
+  width: $grid-size;
+  height: $grid-size;
+  border-radius: 16px;
+  background-color: var(--color-contrast-alt-2);
+}

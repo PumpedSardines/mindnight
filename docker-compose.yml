@@ -1,0 +1,11 @@
+services:
+  proxy:
+    build: ./proxy
+    ports:
+      - 5064:80
+
+  frontend:
+    build: ./frontend
+
+  backend:
+    build: ./backend
