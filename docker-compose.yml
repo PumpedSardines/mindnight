@@ -3,11 +3,21 @@ services:
     build: ./proxy
     ports:
       - ${PORT}:80
+    networks:
+      - isolated
 
   frontend:
     build: ./frontend
+    networks:
+      - isolated
 
   backend:
     build: ./backend
     volumes:
       - ./backend/prisma/database.db:/app/prisma/database.db
+    networks:
+      - isolated
+
+networks:
+  isolated:
+    internal: true
