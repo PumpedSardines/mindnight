@@ -175,13 +175,28 @@ export function getGameHandler(game: Game) {
       this.game.timestampNextPhase =
         Date.now() + this.game.metaGameData.proposingTimeout * 1000;
       this.game.mission = 0;
-      this.game.missions = [
-        { done: false, hackedVotes: 0, people: 1 },
-        { done: false, hackedVotes: 0, people: 2 },
-        { done: false, hackedVotes: 0, people: 1 },
-        { done: false, hackedVotes: 0, people: 2 },
-        { done: false, hackedVotes: 0, people: 2 },
-      ];
+      const missionCounts = {
+        "5": [2, 3, 2, 3, 3],
+        "6": [2, 3, 4, 3, 4],
+        "7": [2, 3, 3, 4, 4],
+        "8": [3, 4, 4, 5, 5],
+        "9": [3, 4, 4, 5, 5],
+        "10": [3, 4, 4, 5, 5],
+      };
+
+      const playerCount = this.getPlayers().length.toString();
+      if (!(playerCount in missionCounts)) {
+        throw new Error("Invalid player count");
+      }
+
+      this.game.missions = missionCounts[
+        playerCount as keyof typeof missionCounts
+      ].map((people) => ({
+        done: false,
+        hackedVotes: 0,
+        people,
+      }));
+
       this.game.playerProposingMission = this.game.players[0]!.id;
     },
     currentMissionPlayersCount() {

@@ -13,7 +13,7 @@ const Logo: React.FC<LogoProps> = (props) => {
 
   return (
     <h1 className={cx(styles["logo"], styles[variant], props.className)}>
-      MINDNIGHT
+      THE RESISTANCE
     </h1>
   );
 };
