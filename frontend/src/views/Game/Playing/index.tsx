@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./Playing.module.scss";
 import Character from "@/components/Character";
 import Logo from "@/components/Logo";
-import { Game, GameHandler } from "@/shared/types";
+import { Game } from "@/shared/types";
 import cx from "@/utils/cx";
 import usePropose from "../mutations/propse";
 import ProposeDisplay from "./ProposeDisplay";

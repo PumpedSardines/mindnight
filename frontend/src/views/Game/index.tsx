@@ -7,7 +7,7 @@ import getGame from "@/api/getGame";
 import CenterView from "@/components/CenterView";
 import Spinner from "@/components/Spinner";
 import { io } from "socket.io-client";
-import { API_URL, SOCKET_API_URL } from "@/const";
+import { SOCKET_API_URL } from "@/const";
 import { Nullish } from "@/types";
 import Playing from "./Playing";
 import GameOver from "./GameOver";
