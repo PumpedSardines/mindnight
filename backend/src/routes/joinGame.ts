@@ -4,6 +4,7 @@ import { Nullish } from "@/types";
 import resForger from "@/utils/res";
 import { Server } from "socket.io";
 import getGameHandlerFromId from "@/utils/getGameHandlerFromId";
+import { PrismaClient } from "@prisma/client";
 
 const ajv = new Ajv();
 type Body = {
@@ -23,9 +24,12 @@ const schema: JSONSchemaType<Body> = {
 
 const validate = ajv.compile(schema);
 
-function createGame(app: Express, io: Server) {
-  app.post("/api/game/:gameId/join", (req, res) => {
+function createGame(app: Express) {
+  app.post("/api/game/:gameId/join", async (req, res) => {
     const forge = resForger(res);
+
+    const prisma = res.locals["prisma"] as PrismaClient;
+    const io = res.locals["io"] as Server;
 
     const gameId = req.params.gameId;
     const body = req.body;
@@ -36,7 +40,7 @@ function createGame(app: Express, io: Server) {
 
     const { name, adminToken = null } = body;
 
-    const gameHandler = getGameHandlerFromId(gameId);
+    const gameHandler = await getGameHandlerFromId(gameId, prisma);
 
     if (!gameHandler) {
       return forge(404, { msg: "Game not found" });
@@ -59,7 +63,7 @@ function createGame(app: Express, io: Server) {
       return forge(400, { msg: "This lobby is already full" });
     }
 
-    gameHandler.save();
+    await gameHandler.save();
     io.to(gameId).emit("update");
 
     const sanitizedGame = gameHandler.getSanitizedGame(player);

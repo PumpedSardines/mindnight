@@ -2,16 +2,20 @@ import { Express } from "express";
 import resForger from "@/utils/res";
 import { Server } from "socket.io";
 import getGameHandlerFromId from "@/utils/getGameHandlerFromId";
+import { PrismaClient } from "@prisma/client";
 
-function kickPlayer(app: Express, io: Server) {
-  app.delete("/api/game/:gameId/player/:playerId", (req, res) => {
+function kickPlayer(app: Express) {
+  app.delete("/api/game/:gameId/player/:playerId", async (req, res) => {
     const forge = resForger(res);
+
+    const prisma = res.locals["prisma"] as PrismaClient;
+    const io = res.locals["io"] as Server;
 
     const gameId = req.params.gameId;
     const playerId = req.params.playerId;
     const token = req.headers.authorization;
 
-    const gameHandler = getGameHandlerFromId(gameId);
+    const gameHandler = await getGameHandlerFromId(gameId, prisma);
 
     if (!gameHandler) {
       return forge(404, { msg: "Game not found" });
@@ -34,7 +38,7 @@ function kickPlayer(app: Express, io: Server) {
     }
 
     gameHandler.kickPlayer(playerId);
-    gameHandler.save();
+    await gameHandler.save();
 
     io.to(gameId).emit("kick", { playerId });
     io.to(gameId).emit("update");

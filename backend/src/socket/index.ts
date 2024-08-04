@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
-import * as db from "@/db";
 import Ajv, { JSONSchemaType } from "ajv";
+import { PrismaClient } from "@prisma/client";
+import getGameHandlerFromId from "@/utils/getGameHandlerFromId";
 
 const ajv = new Ajv();
 
@@ -23,22 +24,19 @@ const attachBodySchema: JSONSchemaType<AttachBody> = {
 
 const validateAttachBody = ajv.compile(attachBodySchema);
 
-function initSocket(io: Server) {
+function initSocket(io: Server, prisma: PrismaClient) {
   io.on("connection", (socket) => {
-    socket.on("attach", (data) => {
+    socket.on("attach", async (data) => {
       if (!validateAttachBody(data)) {
         return;
       }
 
-      const { gameId, playerId, token } = data;
+      const { gameId, token } = data;
 
-      const game = db.getGame(gameId);
-      if (!game) {
-        return;
-      }
+      const gameHandler = await getGameHandlerFromId(gameId, prisma);
 
-      const player = game.players.find((p) => p.id === playerId);
-      if (!player || player.token !== token) {
+      const player = gameHandler?.getPlayerFromToken(token);
+      if (!player) {
         return;
       }
 

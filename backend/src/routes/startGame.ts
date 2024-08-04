@@ -2,19 +2,22 @@ import { Express } from "express";
 import resForger from "@/utils/res";
 import { Server } from "socket.io";
 import getGameHandlerFromId from "@/utils/getGameHandlerFromId";
-import registerTimeOut from "@/utils/registerGameTimeout";
+import { PrismaClient } from "@prisma/client";
 
 /**
  * Gets the state of a game
  */
-function startGame(app: Express, io: Server) {
-  app.post("/api/game/:gameId/start", (req, res) => {
+function startGame(app: Express) {
+  app.post("/api/game/:gameId/start", async (req, res) => {
     const forge = resForger(res);
+
+    const prisma = res.locals["prisma"] as PrismaClient;
+    const io = res.locals["io"] as Server;
 
     const gameId = req.params.gameId;
     const token = req.headers.authorization;
 
-    const gameHandler = getGameHandlerFromId(gameId);
+    const gameHandler = await getGameHandlerFromId(gameId, prisma);
     if (!gameHandler) {
       return forge(404, { msg: "Game not found" });
     }
@@ -38,9 +41,8 @@ function startGame(app: Express, io: Server) {
     }
 
     gameHandler.startGame();
-    gameHandler.save();
+    await gameHandler.save();
     io.to(gameId).emit("update");
-    registerTimeOut(gameHandler.gameId(), io, gameHandler.getTimeLeft());
 
     forge(200, { msg: "ok" });
   });

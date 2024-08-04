@@ -1,20 +1,26 @@
 import { Express } from "express";
 import randomId from "@/shared/randomId";
-import * as db from "@/db";
+import getDb from "@/db";
 import resForger from "@/utils/res";
 import { newEmptyGame } from "@/shared/Game";
 
 function createGame(app: Express) {
-  app.post("/api/game", (_, res) => {
+  app.post("/api/game", async (_, res) => {
     const forge = resForger(res);
+    console.log("createGame");
+
+    const prisma = res.locals["prisma"];
+    const db = getDb(prisma);
+
     let gameId = randomId(6);
-    while (db.getGame(gameId) !== null) {
+    await db.idExists(gameId);
+    while (await db.idExists(gameId)) {
       gameId = randomId(6);
     }
 
     const game = newEmptyGame(gameId, randomId(256));
 
-    db.setGame(gameId, game);
+    await db.setGame(gameId, game);
 
     forge(200, {
       msg: "ok",

@@ -1,19 +1,23 @@
 import { Express } from "express";
-import * as db from "@/db";
 import resForger from "@/utils/res";
+import { PrismaClient } from "@prisma/client";
+import getGameHandlerFromId from "@/utils/getGameHandlerFromId";
 
 function joinGame(app: Express) {
-  app.get("/api/game/:gameId/can-join", (req, res) => {
+  app.get("/api/game/:gameId/can-join", async (req, res) => {
     const forge = resForger(res);
+
+    const prisma = res.locals["prisma"] as PrismaClient;
+
     const gameId = req.params.gameId;
 
-    const game = db.getGame(gameId);
+    const gameHandle = await getGameHandlerFromId(gameId, prisma);
 
-    if (!game) {
+    if (!gameHandle) {
       return forge(404, { msg: "Game not found" });
     }
 
-    if (game.state !== "lobby") {
+    if (!gameHandle.isLobby()) {
       return forge(403, { msg: "Game has already started" });
     }
 

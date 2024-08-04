@@ -1,15 +1,22 @@
 import { getGameHandler } from "@/shared/Game";
-import * as db from "@/db";
 import { sanitizeGame } from "@/utils/sanitize";
 import { Game, Player } from "@/shared/types";
+import { PrismaClient } from "@prisma/client";
+import getDb from "@/db";
 
-function getGameHandlerFromId(id: string):
+async function getGameHandlerFromId(
+  id: string,
+  prisma: PrismaClient,
+): Promise<
   | (ReturnType<typeof getGameHandler> & {
-      save: () => void;
+      save: () => Promise<void>;
       getSanitizedGame(player: Player): Game;
     })
-  | null {
-  const rawGame = db.getGame(id);
+  | null
+> {
+  const db = getDb(prisma);
+
+  const rawGame = await db.getGame(id);
 
   if (!rawGame) {
     return null;
@@ -22,8 +29,8 @@ function getGameHandlerFromId(id: string):
     getSanitizedGame(player: Player) {
       return sanitizeGame(player)(handler.game);
     },
-    save() {
-      db.setGame(id, handler.game);
+    async save() {
+      await db.setGame(id, handler.game);
     },
   };
 }
