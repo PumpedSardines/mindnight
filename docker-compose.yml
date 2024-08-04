@@ -9,3 +9,5 @@ services:
 
   backend:
     build: ./backend
+    volumes:
+      - ./backend/prisma/database.db:/app/prisma/database.db
