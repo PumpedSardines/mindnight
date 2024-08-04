@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.51.18",
-    "@types/ajv": "^1.0.0",
     "ajv": "^8.17.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -21,10 +20,10 @@
     "react-spinners": "^0.14.1",
     "react-toastify": "^10.0.5",
     "sass": "^1.77.8",
-    "socket.io-client": "^4.7.5",
-    "zustand": "^4.5.4"
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
+    "@types/ajv": "^1.0.0",
     "@chromatic-com/storybook": "^1.6.1",
     "@storybook/addon-essentials": "^8.2.7",
     "@storybook/addon-interactions": "^8.2.7",
