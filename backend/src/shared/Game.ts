@@ -126,6 +126,13 @@ export function getGameHandler(game: Game) {
       this.game.players.push(player);
       return player;
     },
+    canStartGame() {
+      return (
+        this.isLobby() &&
+        !this.isPlayerCountTooLow() &&
+        !this.isPlayerCountTooHigh()
+      );
+    },
     startGame() {
       if (!this.isLobby()) {
         throw new Error("Game has already started");
@@ -326,10 +333,6 @@ export function getGameHandler(game: Game) {
       return Math.max(0, this.game.timestampNextPhase - Date.now());
     },
     handleTimeout(): boolean {
-      if (this.isGameOver()) {
-        return false;
-      }
-
       if (this.getTimeLeft() >= 100) {
         return false;
       }

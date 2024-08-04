@@ -7,13 +7,14 @@ import styles from "./Lobby.module.scss";
 import Logo from "@/components/Logo";
 import Character from "@/components/Character";
 import playSound from "@/soundEffects";
-import { Game, Player } from "@/shared/types";
+import { Game, GameHandler, Player } from "@/shared/types";
 import { randomCharacter } from "@/shared/randomCharacter";
 import useUpdateCharacter from "../mutations/updateCharacter";
 import Button from "@/components/Button";
 import useKickPlayer from "../mutations/kickPlayer";
 import { toast } from "react-toastify";
 import useStartGame from "../mutations/startGame";
+import { getGameHandler } from "@/shared/Game";
 
 const Lobby: React.FC<{ game: Game; token: string; playerId: string }> = ({
   game,
@@ -23,6 +24,7 @@ const Lobby: React.FC<{ game: Game; token: string; playerId: string }> = ({
   const updateCharacter = useUpdateCharacter(game.id, playerId, token);
   const kickPlayer = useKickPlayer(game.id, token);
   const startGame = useStartGame(game.id, token);
+  const gameHandler = getGameHandler(game);
 
   const players = useMemo(() => {
     const players = JSON.parse(JSON.stringify(game.players)) as Player[];
@@ -38,8 +40,8 @@ const Lobby: React.FC<{ game: Game; token: string; playerId: string }> = ({
     return players;
   }, [game.players, playerId]);
 
-  const isAdmin =
-    players.find((player) => player.id === playerId)?.admin ?? false;
+  const self = gameHandler.getPlayer(playerId);
+  if (!self) throw new Error("Player not found");
 
   return (
     <div className={styles["root"]}>
@@ -55,49 +57,36 @@ const Lobby: React.FC<{ game: Game; token: string; playerId: string }> = ({
           <p>Game Code: {game.id}</p>
         </button>
       </div>
-      {(() => {
-        if (players.length < 2) {
-          return <p>Waiting for more players {players.length}/5</p>;
-        }
-
-        if (isAdmin) {
-          return (
-            <Button
-              onClick={() => startGame.mutate()}
-              loading={startGame.isPending}
-            >
-              Start Game
-            </Button>
-          );
-        } else {
-          return <p>Waiting for lobby admin to start the game...</p>;
-        }
-      })()}
+      <LobbyInfoText
+        gameHandler={gameHandler}
+        admin={self.admin}
+        onStartGame={startGame.mutate}
+        isLoadingStartGame={startGame.isPending}
+      />
       <div className={styles["characterGrid"]}>
         {players.map((player) => {
-          const currentPlayerIsSelf = player.id === playerId;
-          const currentPlayerIsAdmin = player.admin;
+          const playerIsSelf = player.id === playerId;
+          const playerIsAdmin = player.admin;
 
           const topText = (() => {
-            if (currentPlayerIsSelf && currentPlayerIsAdmin)
-              return "You (Admin)";
-            if (currentPlayerIsSelf) return "You";
-            if (currentPlayerIsAdmin) return "Admin";
+            if (playerIsSelf && playerIsAdmin) return "You (Admin)";
+            if (playerIsSelf) return "You";
+            if (playerIsAdmin) return "Admin";
             return;
           })();
 
           return (
-            <div key={player.name} className={styles["characterBox"]}>
-              {(currentPlayerIsSelf || currentPlayerIsAdmin) && (
+            <div key={player.id} className={styles["characterBox"]}>
+              {(playerIsSelf || playerIsAdmin) && (
                 <p className={styles["you"]}>{topText}</p>
               )}
               <Character size="large" character={player.character} />
               <p className={styles["name"]}>{player.name}</p>
-              {(currentPlayerIsSelf || isAdmin) && (
+              {(playerIsSelf || playerIsAdmin) && (
                 <button
                   className={styles["diceButton"]}
                   onClick={() => {
-                    if (currentPlayerIsSelf) {
+                    if (playerIsSelf) {
                       playSound("diceRoll");
                       updateCharacter.mutate(randomCharacter());
                     } else {
@@ -105,7 +94,7 @@ const Lobby: React.FC<{ game: Game; token: string; playerId: string }> = ({
                     }
                   }}
                 >
-                  <img src={currentPlayerIsSelf ? DiceIcon : UserSlashIcon} />
+                  <img src={playerIsSelf ? DiceIcon : UserSlashIcon} />
                 </button>
               )}
             </div>
@@ -118,5 +107,50 @@ const Lobby: React.FC<{ game: Game; token: string; playerId: string }> = ({
     </div>
   );
 };
+
+type LobbyInfoTextProps = {
+  gameHandler: GameHandler;
+  onStartGame: () => void;
+  isLoadingStartGame: boolean;
+  admin: boolean;
+};
+
+function LobbyInfoText(props: LobbyInfoTextProps) {
+  const { gameHandler, admin, onStartGame, isLoadingStartGame } = props;
+
+  const amountOfPlayers = gameHandler.game.players.length;
+  const minPlayers = gameHandler.game.metaGameData.minPlayers;
+  const maxPlayers = gameHandler.game.metaGameData.maxPlayers;
+
+  if (!gameHandler.canStartGame()) {
+    if (gameHandler.isPlayerCountTooLow()) {
+      return (
+        <p>
+          Waiting for more players {amountOfPlayers}/{minPlayers}
+        </p>
+      );
+    }
+
+    if (gameHandler.isPlayerCountTooHigh()) {
+      return (
+        <p>
+          Too many players {amountOfPlayers}/{maxPlayers}
+        </p>
+      );
+    }
+
+    return <p>Unknown error, please refresh the page or contact support</p>;
+  }
+
+  if (admin) {
+    return (
+      <Button onClick={onStartGame} loading={isLoadingStartGame}>
+        Start Game
+      </Button>
+    );
+  } else {
+    return <p>Waiting for lobby admin to start the game...</p>;
+  }
+}
 
 export default Lobby;

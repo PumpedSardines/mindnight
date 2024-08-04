@@ -1,3 +1,5 @@
+import { getGameHandler } from "./Game";
+
 export type CharacterBody = "circle" | "rhombus" | "square" | "squircle";
 export type CharacterColor =
   | "blue"
@@ -35,6 +37,8 @@ export type Player = {
   character: Character;
 };
 
+export type GameHandler = ReturnType<typeof getGameHandler>;
+
 export type Game = {
   id: string;
   metaGameData: {
@@ -53,11 +57,11 @@ export type Game = {
   adminToken: string;
   state: "lobby" | "playing" | "game-over";
   phase:
-    | "propose"
-    | "proposal-vote"
-    | "proposal-vote-result"
-    | "mission"
-    | "mission-result";
+  | "propose"
+  | "proposal-vote"
+  | "proposal-vote-result"
+  | "mission"
+  | "mission-result";
   mission: number;
   missions: { done: boolean; hackedVotes: number; people: number }[];
   playerProposingMission: string;

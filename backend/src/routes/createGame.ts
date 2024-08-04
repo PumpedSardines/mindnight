@@ -13,15 +13,6 @@ function createGame(app: Express) {
     }
 
     const game = newEmptyGame(gameId, randomId(256));
-    // HACK: For debugging
-    game.metaGameData.minPlayers = 1;
-    game.metaGameData.amountOfHackers = 1;
-
-    // game.metaGameData.proposingTimeout = 1000 * 60 * 60 * 24;
-    // game.metaGameData.proposalVoteTimeout = 1000 * 60 * 60 * 24;
-    // game.metaGameData.proposalVoteResultTimeout = 2;
-    // game.metaGameData.missionTimeout = 1000 * 60 * 60 * 24;
-    // game.metaGameData.missionResultTimeout = 2;
 
     db.setGame(gameId, game);
 

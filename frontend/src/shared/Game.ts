@@ -126,6 +126,13 @@ export function getGameHandler(game: Game) {
       this.game.players.push(player);
       return player;
     },
+    canStartGame() {
+      return (
+        this.isLobby() &&
+        !this.isPlayerCountTooLow() &&
+        !this.isPlayerCountTooHigh()
+      );
+    },
     startGame() {
       if (!this.isLobby()) {
         throw new Error("Game has already started");
