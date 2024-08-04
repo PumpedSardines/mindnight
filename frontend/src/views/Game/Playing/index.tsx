@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./Playing.module.scss";
 import Character from "@/components/Character";
 import Logo from "@/components/Logo";
-import { Game } from "@/shared/types";
+import { Game, GameHandler } from "@/shared/types";
 import cx from "@/utils/cx";
 import usePropose from "../mutations/propse";
 import ProposeDisplay from "./ProposeDisplay";
@@ -15,6 +15,7 @@ import playSound from "@/soundEffects";
 import MissionDisplay from "./MissionDisplay";
 import useMission from "../mutations/mission";
 import MissionState from "@/components/MissionState";
+import { getGameHandler } from "@/shared/Game";
 
 type PlayingProps = {
   game: Game;
@@ -29,25 +30,27 @@ const Playing: React.FC<PlayingProps> = ({ game, playerId, token }) => {
   const proposeVote = useProposeVote(game.id, playerId, token);
   const mission = useMission(game.id, playerId, token);
 
-  const self = game.players.find((player) => player.id === playerId)!;
+  const gameHandler = getGameHandler(game);
 
-  const step = game.players.findIndex(
-    (player) => player.id === game.playerProposingMission,
-  );
-  const currentMission = game.missions[game.mission]!;
+  const self = gameHandler.getPlayer(playerId);
+  if (!self) throw new Error("Player not found");
+
+  const proposingPlayer = gameHandler.getProposingPlayer();
+  const step = gameHandler.getProposingPlayerIndex();
+  const currentMission = gameHandler.getCurrentMission();
 
   // PROPOSE LOGIC
   const [localProposedPlayerIds, setLocalProposedPlayerIds] = useState<
     string[] | null
   >(null);
   const isProposing =
-    game.phase == "propose" && game.playerProposingMission === playerId;
+    gameHandler.isPhase("propose") && proposingPlayer.id === self.id;
 
   useEffect(() => {
     if (game.phase === "proposal-vote") {
       setLocalProposedPlayerIds(null);
     }
-  }, [game.phase, playerId, game.playerProposingMission]);
+  }, [game.phase, game.playerProposingMission]);
 
   return (
     <main className={styles["main"]}>
@@ -61,8 +64,8 @@ const Playing: React.FC<PlayingProps> = ({ game, playerId, token }) => {
           }}
           className={styles["votingPlayerIndicator"]}
         />
-        {game.players.map((player, i) => {
-          const isSelf = player.id === playerId;
+        {gameHandler.getPlayers().map((player) => {
+          const isSelf = player.id === self.id;
 
           const subtitle = (() => {
             if (isSelf || self.hacker)
@@ -70,9 +73,27 @@ const Playing: React.FC<PlayingProps> = ({ game, playerId, token }) => {
             return "???";
           })();
 
+          const extraText = (() => {
+            if (game.phase === "proposal-vote") {
+              if (player.id in game.proposalVotes) {
+                return "VOTED";
+              }
+            }
+
+            if (game.phase === "proposal-vote-result") {
+              if (game.proposalVotes[player.id]) {
+                return "ACCEPT";
+              } else {
+                return "REJECT";
+              }
+            }
+
+            return null;
+          })();
+
           return (
             <div
-              key={i}
+              key={player.id}
               onClick={() => {
                 if (!isProposing) return;
 
@@ -90,33 +111,20 @@ const Playing: React.FC<PlayingProps> = ({ game, playerId, token }) => {
                 isProposing && styles["isProposing"],
                 styles["playerCont"],
                 localProposedPlayerIds?.includes(player.id) &&
-                styles["selected"],
+                  styles["selected"],
                 player.hacker && styles["hacker"],
               )}
             >
               <Character size="small" character={player.character} />
               <div>
                 <p>
-                  {player.name} {isSelf && "(You)"}
+                  {player.name}
+                  {isSelf && " (You)"}
                 </p>
                 <p className={styles["subtitle"]}>{subtitle}</p>
-                {(() => {
-                  if (game.phase === "proposal-vote") {
-                    if (player.id in game.proposalVotes) {
-                      return <p className={styles["extraText"]}>VOTED</p>;
-                    }
-                  }
-
-                  if (game.phase === "proposal-vote-result") {
-                    if (game.proposalVotes[player.id]) {
-                      return <p className={styles["extraText"]}>ACCEPT</p>;
-                    } else {
-                      return <p className={styles["extraText"]}>REJECT</p>;
-                    }
-                  }
-
-                  return null;
-                })()}
+                {extraText && (
+                  <p className={styles["extraText"]}>{extraText}</p>
+                )}
               </div>
             </div>
           );

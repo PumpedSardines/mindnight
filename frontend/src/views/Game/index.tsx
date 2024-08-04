@@ -7,7 +7,7 @@ import getGame from "@/api/getGame";
 import CenterView from "@/components/CenterView";
 import Spinner from "@/components/Spinner";
 import { io } from "socket.io-client";
-import { API_URL } from "@/const";
+import { API_URL, SOCKET_API_URL } from "@/const";
 import { Nullish } from "@/types";
 import Playing from "./Playing";
 import GameOver from "./GameOver";
@@ -54,7 +54,7 @@ const Game: React.FC = () => {
   });
 
   useEffect(() => {
-    const socket = import.meta.env.DEV ? io(API_URL) : io();
+    const socket = SOCKET_API_URL ? io(SOCKET_API_URL) : io();
     socket.emit("attach", { gameId, playerId, token });
     let id: NodeJS.Timeout;
 

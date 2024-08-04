@@ -105,6 +105,22 @@ export function getGameHandler(game: Game) {
       }
       player.character = character;
     },
+    getPlayers() {
+      return this.game.players;
+    },
+    getProposingPlayer() {
+      return this.game.players.find(
+        (p) => p.id === this.game.playerProposingMission,
+      )!;
+    },
+    getProposingPlayerIndex() {
+      return this.game.players.findIndex(
+        (p) => p.id === this.game.playerProposingMission,
+      );
+    },
+    getCurrentMission() {
+      return this.game.missions[this.game.mission]!;
+    },
     newPlayer(name: string, isAdmin = false) {
       if (!this.isLobby()) {
         throw new Error("Game has already started");
