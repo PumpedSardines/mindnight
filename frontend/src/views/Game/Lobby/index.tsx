@@ -66,7 +66,7 @@ const Lobby: React.FC<{ game: Game; token: string; playerId: string }> = ({
       <div className={styles["characterGrid"]}>
         {players.map((player) => {
           const playerIsSelf = player.id === playerId;
-          const playerIsAdmin = self.admin;
+          const playerIsAdmin = player.admin;
 
           const topText = (() => {
             if (playerIsSelf && playerIsAdmin) return "You (Admin)";
