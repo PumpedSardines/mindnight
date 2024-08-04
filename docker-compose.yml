@@ -2,7 +2,7 @@ services:
   proxy:
     build: ./proxy
     ports:
-      - 5064:80
+      - ${PORT}:80
 
   frontend:
     build: ./frontend
