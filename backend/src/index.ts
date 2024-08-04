@@ -77,7 +77,6 @@ const prisma = new PrismaClient();
       const promises = expiredGames.map(async (game) => {
         const gameHandle = getGameHandler(game);
         const needsUpdate = gameHandle.handleTimeout();
-        console.log(needsUpdate);
 
         if (needsUpdate) {
           await db.setGame(game.id, gameHandle.game);
