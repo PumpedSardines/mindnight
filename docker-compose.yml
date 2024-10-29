@@ -3,11 +3,24 @@ services:
     build: ./proxy
     ports:
       - ${PORT}:80
+    networks:
+      - internet
 
   frontend:
+    platform: linux/amd64
+    image: pumpedsardines/theresistance-frontend:1.0
     build: ./frontend
+    networks:
+      - no-internet
 
   backend:
     build: ./backend
     volumes:
       - ./backend/prisma/database.db:/app/prisma/database.db
+    networks:
+      - no-internet
+
+networks:
+  internet: {}
+  no-internet:
+    internal: true

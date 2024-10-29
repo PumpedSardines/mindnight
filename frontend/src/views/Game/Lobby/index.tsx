@@ -40,6 +40,8 @@ const Lobby: React.FC<{ game: Game; token: string; playerId: string }> = ({
     return players;
   }, [game.players, playerId]);
 
+  const me = players.find((player) => player.id === playerId)!;
+
   const self = gameHandler.getPlayer(playerId);
   if (!self) throw new Error("Player not found");
 
@@ -82,7 +84,7 @@ const Lobby: React.FC<{ game: Game; token: string; playerId: string }> = ({
               )}
               <Character size="large" character={player.character} />
               <p className={styles["name"]}>{player.name}</p>
-              {(playerIsSelf || playerIsAdmin) && (
+              {(playerIsSelf || me.admin) && (
                 <button
                   className={styles["diceButton"]}
                   onClick={() => {
